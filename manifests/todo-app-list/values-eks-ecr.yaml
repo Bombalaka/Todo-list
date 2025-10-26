@@ -10,7 +10,7 @@ image:
 mongodb:
   useBitnami: false  # Use our own mongodb-statefulset.yaml
   storage:
-    enabled: false
+    enabled: true # Enable persistent storage
     storageClass: ebs-sc
     
 # WebApp service - LoadBalancer with AWS annotations

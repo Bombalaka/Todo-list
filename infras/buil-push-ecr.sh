@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# This script builds a Docker image and pushes it to AWS ECR
+# This script builds a Docker image and pushes it to AWS ECR only
 
 
 # Get ECR URI and AWS Account ID from CloudFormation stack outputs
 ECR_URI=$(aws cloudformation describe-stacks --stack-name todo-ecr --region eu-west-1 \
   --query 'Stacks[0].Outputs[?OutputKey==`ECRRepositoryURI`].OutputValue' --output text)
-ECR_REGISTRY=$(echo $ECR_URI | cut -d'/' -f1)  # Fixed: split by '/' not '.'
+ECR_REGISTRY=$(echo $ECR_URI | cut -d'/' -f1)  
 
 # Variables
 AWS_REGION="eu-west-1"

@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+# Build and push docker image to docker hub
+
+
 # ------- CONFIG -------
 : "${DOCKER_USERNAME:?Set DOCKER_USERNAME}"
 : "${DOCKER_PASSWORD:?Set DOCKER_PASSWORD}"

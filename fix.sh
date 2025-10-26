@@ -8,6 +8,7 @@
 #   ├── backend/Todo_App/Dockerfile
 #   ├── Todo_App/src/assets/ToDoList.jsx
 #   └── manifests/todo-app-list/
+# Fix any localhost:8080 issues by following these steps.
 
 set -e
 
