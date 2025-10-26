@@ -1,0 +1,250 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: >
+  This template creates a vpc with public and private subnets, internet gateway, and s3. 
+  It also creates route tables and necessary associations.(VPC-Networking)
+
+Parameters:
+  VpcCidr:
+    Type: String
+    Default: "10.0.0.0/16"
+    Description: "CIDR block for the VPC"
+  publicSubnet1Cidr:
+    Type: String
+    Default: "10.0.1.0/24"
+    Description: "CIDR block for the public subnet 1"
+  publicSubnet2Cidr:
+    Type: String
+    Default: "10.0.2.0/24"
+    Description: "CIDR block for the public subnet 2"   
+  privateSubnet1Cidr:
+    Type: String
+    Default: "10.0.3.0/24"
+    Description: "CIDR block for the private subnet 1"
+  privateSubnet2Cidr:
+    Type: String
+    Default: "10.0.4.0/24"
+    Description: "CIDR block for the private subnet 2"
+  AwsRegion:
+    Type: String
+    Default: "eu-west-1"
+    Description: "AWS region for the resources" 
+  ClusterName:
+    Type: String
+    Default: "Todolist"
+    Description: "EKS Cluster Name"
+
+Resources:
+
+  ProjectVPC:
+    Type: "AWS::EC2::VPC"
+    Properties:
+      CidrBlock: !Ref VpcCidr
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: kubernetes.io/cluster/my-cluster
+          Value: "shared"
+  
+  InternetGateway:
+    Type: "AWS::EC2::InternetGateway"
+    Properties:
+      Tags:
+        - Key: kubernetes.io/cluster/my-cluster
+          Value: "shared"
+  
+  AttachGateway:
+    Type: "AWS::EC2::VPCGatewayAttachment"
+    Properties:
+      VpcId: !Ref ProjectVPC
+      InternetGatewayId: !Ref InternetGateway
+
+  publicSubnet1:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref ProjectVPC
+      CidrBlock: !Ref publicSubnet1Cidr
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      MapPublicIpOnLaunch: true # Enable auto-assign public IP == yes 
+      Tags:
+        - Key: kubernetes.io/cluster/my-cluster
+          Value: "shared"
+        - Key: kubernetes.io/role/elb
+          Value: "1"
+  
+  publicSubnet2:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref ProjectVPC
+      CidrBlock: !Ref publicSubnet2Cidr
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+      MapPublicIpOnLaunch: true # Enable auto-assign public IP == yes 
+      Tags:
+        - Key: kubernetes.io/cluster/my-cluster
+          Value: "shared"
+        - Key: kubernetes.io/role/elb
+          Value: "1"
+  
+  privateSubnet1:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref ProjectVPC
+      CidrBlock: !Ref privateSubnet1Cidr
+      AvailabilityZone: !Sub "${AwsRegion}a"
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: kubernetes.io/cluster/my-cluster
+          Value: "shared"   
+  
+  privateSubnet2:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref ProjectVPC
+      CidrBlock: !Ref privateSubnet2Cidr
+      AvailabilityZone: !Sub "${AwsRegion}b"
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: kubernetes.io/cluster/my-cluster
+          Value: "shared"
+  
+  NatGatewayEIP1:
+    Type: "AWS::EC2::EIP"
+    Properties:
+      Domain: vpc
+
+  NatGateway1:
+    Type: "AWS::EC2::NatGateway"
+    Properties:
+      AllocationId: !GetAtt NatGatewayEIP1.AllocationId
+      SubnetId: !Ref publicSubnet1
+  
+  NatGatewayEIP2:
+    Type: "AWS::EC2::EIP"
+    Properties:
+      Domain: vpc
+  
+  NatGateway2:
+    Type: "AWS::EC2::NatGateway"
+    Properties:
+      AllocationId: !GetAtt NatGatewayEIP2.AllocationId
+      SubnetId: !Ref publicSubnet2
+
+  PublicRouteTable:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId: !Ref ProjectVPC
+      Tags:
+        - Key: Name
+          Value: "Public-Route-Table"
+  
+  DefaultPublicRoute:
+    Type: "AWS::EC2::Route"
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: "0.0.0.0/0"
+      GatewayId: !Ref InternetGateway
+  
+  PublicSubnet1RouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref publicSubnet1
+      RouteTableId: !Ref PublicRouteTable
+  
+  PublicSubnet2RouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref publicSubnet2
+      RouteTableId: !Ref PublicRouteTable
+  
+  privateRouteTable1:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId: !Ref ProjectVPC
+      Tags:
+        - Key: Name
+          Value: "Private-Route-Table-AZ1"
+  
+  privateRouteTable2:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId: !Ref ProjectVPC
+      Tags:
+        - Key: Name
+          Value: "Private-Route-Table-AZ2"
+  
+  DefaultPrivateRoute1:
+    Type: "AWS::EC2::Route"
+    Properties:
+      RouteTableId: !Ref privateRouteTable1
+      DestinationCidrBlock: "0.0.0.0/0"
+      NatGatewayId: !Ref NatGateway1
+  
+  DefaultPrivateRoute2:
+    Type: "AWS::EC2::Route"
+    Properties:
+      RouteTableId: !Ref privateRouteTable2
+      DestinationCidrBlock: "0.0.0.0/0"
+      NatGatewayId: !Ref NatGateway2
+  
+  PrivateSubnet1RouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref privateSubnet1
+      RouteTableId: !Ref privateRouteTable1
+  
+  PrivateSubnet2RouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref privateSubnet2
+      RouteTableId: !Ref privateRouteTable2
+
+  S3Endpoint:
+    Type: "AWS::EC2::VPCEndpoint"
+    Properties:
+      VpcId: !Ref ProjectVPC
+      ServiceName: !Sub "com.amazonaws.${AwsRegion}.s3"
+      RouteTableIds:
+        - !Ref PublicRouteTable
+      VpcEndpointType: "Gateway"
+      Tags:
+        - Key: Name
+          Value: "S3-VPC-Endpoint"
+
+Outputs:
+  VpcId:
+    Description: "VPC ID"
+    Value: !Ref ProjectVPC
+    Export:
+      Name: "VpcId"
+  
+  PublicSubnet1:
+    Description: A reference to the public subnet in the 1st Availability Zone
+    Value: !Ref publicSubnet1
+    Export:
+      Name: "PublicSubnet1"
+
+  PublicSubnet2:
+    Description: A reference to the public subnet in the 2nd Availability Zone
+    Value: !Ref publicSubnet2
+    Export:
+      Name: "PublicSubnet2"
+
+  PrivateSubnet1:
+    Description: A reference to the private subnet in the 1st Availability Zone
+    Value: !Ref privateSubnet1
+    Export:
+      Name: "PrivateSubnet1"
+
+  PrivateSubnet2:
+    Description: A reference to the private subnet in the 2nd Availability Zone
+    Value: !Ref privateSubnet2
+    Export:
+      Name: "PrivateSubnet2"
+  
+  S3EndpointId:
+    Description: "S3 VPC Endpoint ID"
+    Value: !Ref S3Endpoint
+    Export:
+      Name: "S3EndpointId"

@@ -1,0 +1,79 @@
+# Default values for todo-app chart
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Global settings
+namespace: todo-app-list
+
+# Container image configuration
+image:
+  repository: 146624863550.dkr.ecr.eu-west-1.amazonaws.com/todo-list-repo
+  tag: v1.0.0
+  pullPolicy: IfNotPresent # because I use special tag
+
+# MongoDB configuration
+mongodb:
+  enabled: true
+  replicas: 1
+  image: mongo:latest
+  storage:
+    enabled: true
+    size: 1Gi
+    # storageClass will be set per environment
+    storageClass: ""
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+  database: "ToDoAppDb"
+
+# WebApp configuration
+webapp:
+  enabled: true
+  replicas: 2
+  port: 8080
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+  service:
+    type: LoadBalancer
+    port: 80
+    # AWS Load Balancer annotations (only for EKS)
+    annotations: {}
+
+# Mongo Express configuration
+mongoExpress:
+  enabled: true
+  replicas: 1
+  image: mongo-express:latest
+  port: 8081
+  username: admin
+  password: pass
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+  service:
+    type: LoadBalancer
+    port: 80
+    annotations: {}
+
+# Storage class (environment-specific)
+storageClass:
+  enabled: false
+  name: ebs-sc
+  provisioner: ebs.csi.eks.amazonaws.com
+  volumeBindingMode: WaitForFirstConsumer
+  parameters:
+    type: gp3
+    encrypted: "true"

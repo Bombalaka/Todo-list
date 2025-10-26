@@ -1,0 +1,58 @@
+{{- if .Values.mongoExpress.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-express-service
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "todo-app.labels" . | nindent 4 }}
+    app: mongo-express
+  {{- with .Values.mongoExpress.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.mongoExpress.service.type }}
+  selector:
+    app: mongo-express
+  ports:
+  - port: {{ .Values.mongoExpress.service.port }}
+    targetPort: {{ .Values.mongoExpress.port }}
+    {{- if and (eq .Values.mongoExpress.service.type "NodePort") .Values.mongoExpress.service.nodePort }}
+    nodePort: {{ .Values.mongoExpress.service.nodePort }}
+    {{- end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-express
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "todo-app.labels" . | nindent 4 }}
+    app: mongo-express
+spec:
+  replicas: {{ .Values.mongoExpress.replicas }}
+  selector:
+    matchLabels:
+      app: mongo-express
+  template:
+    metadata:
+      labels:
+        app: mongo-express
+    spec:
+      containers:
+      - name: mongo-express
+        image: {{ .Values.mongoExpress.image }}
+        ports:
+        - containerPort: {{ .Values.mongoExpress.port }}
+        env:
+        - name: ME_CONFIG_MONGODB_URL
+          value: "mongodb://mongodb-service:27017"
+        - name: ME_CONFIG_BASICAUTH_USERNAME
+          value: {{ .Values.mongoExpress.username | quote }}
+        - name: ME_CONFIG_BASICAUTH_PASSWORD
+          value: {{ .Values.mongoExpress.password | quote }}
+        resources:
+          {{- toYaml .Values.mongoExpress.resources | nindent 10 }}
+{{- end }}

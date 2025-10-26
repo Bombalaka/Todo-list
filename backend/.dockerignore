@@ -1,0 +1,7 @@
+
+.git
+bin/
+obj/
+*.user
+.env.local
+node_modules/

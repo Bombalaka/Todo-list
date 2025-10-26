@@ -1,0 +1,13 @@
+apiVersion: v2
+name: todo-app-list
+description: A full-stack Todo application, Fe use React and backend use ASP.NET Core with MongoDB
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - todo
+  - mongodb
+  - asp.net
+maintainers:
+  - name: Yotaka K.
+    email: yotaka.johansson@hotmail.com

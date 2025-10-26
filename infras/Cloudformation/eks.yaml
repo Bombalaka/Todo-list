@@ -1,0 +1,122 @@
+--- 
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  This template creates an EKS Cluster with Node Group.(EKS-Cluster)
+
+Parameters:
+  ClusterName:
+    Type: String
+    Default: "todolist"
+    Description: "EKS Cluster Name"
+  NodeInstanceType:
+    Type: String
+    Default: "t3.small"
+    Description: "EC2 Instance Type for the Node Group"
+  DesiredCapacity:
+    Type: Number
+    Default: 2
+    Description: "Desired number of worker nodes"
+  MinSize:
+    Type: Number
+    Default: 2
+    Description: "Minimum number of worker nodes"
+  MaxSize:
+    Type: Number
+    Default: 4
+    Description: "Maximum number of worker nodes"
+
+Resources:
+# security group for EKS Cluster
+  ClusterSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "EKS Cluster Security Group"
+      VpcId: !ImportValue VpcId
+      Tags:
+        - Key: Name
+          Value: !Sub "${ClusterName}-cluster-sg"
+
+# EKS Cluster role (IAM Role for EKS Control Plane)
+  EKSClusterRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: !Sub "${ClusterName}-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "eks.amazonaws.com"
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+
+# EKS Node Group role(IAM Role for Worker Nodes)
+  EKSNodeInstanceRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: !Sub "${ClusterName}-nodegroup-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "ec2.amazonaws.com"
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"              # Worker node basics
+        - "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"     # Pull from ECR
+        - "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"                   # CNI plugin  
+
+#eks control plane
+  EKSCluster:
+    Type: "AWS::EKS::Cluster"
+    Properties:
+      Name: !Ref ClusterName
+      RoleArn: !GetAtt EKSClusterRole.Arn
+      ResourcesVpcConfig:
+        SecurityGroupIds:
+          - !Ref ClusterSecurityGroup
+        SubnetIds:
+          - !ImportValue PublicSubnet1
+          - !ImportValue PublicSubnet2
+          - !ImportValue PrivateSubnet1
+          - !ImportValue PrivateSubnet2
+        EndpointPublicAccess: true
+        EndpointPrivateAccess: true
+
+#Node Group for EKS Cluster
+  EKSNodeGroup:
+    Type: "AWS::EKS::Nodegroup"
+    DependsOn: EKSCluster
+    Properties:
+      ClusterName: !Ref EKSCluster
+      NodegroupName: !Sub "${ClusterName}-nodegroup"
+      NodeRole: !GetAtt EKSNodeInstanceRole.Arn
+      Subnets:
+        - !ImportValue PrivateSubnet1
+        - !ImportValue PrivateSubnet2
+      ScalingConfig:
+        DesiredSize: !Ref DesiredCapacity
+        MinSize: !Ref MinSize
+        MaxSize: !Ref MaxSize
+      InstanceTypes:
+        - !Ref NodeInstanceType
+
+
+Outputs:
+  EKSClusterName:
+    Description: "Name of the EKS Cluster"
+    Value: !Ref EKSCluster
+    Export:
+      Name: "TodoListEKSClusterName"
+  EKSClusterEndpoint:
+    Description: "Endpoint of the EKS Cluster"
+    Value: !GetAtt EKSCluster.Endpoint
+    Export:
+      Name: "TodoListEKSClusterEndpoint"
+  EKSClusterSecurityGroup:
+    Description: "Security Group of the EKS Cluster"
+    Value: !Ref ClusterSecurityGroup
+    Export:
+      Name: "TodoListEKSClusterSecurityGroup"

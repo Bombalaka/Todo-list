@@ -1,0 +1,57 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: >
+  This template creates a ecr repository to store docker images. 
+  (ECR-Container Registry)
+
+Parameters:
+  RepositoryName:
+    Type: String
+    Default: "todo-list-repo"
+    Description: "Name of the ECR repository"
+  AwsRegion:
+    Type: String
+    Default: "eu-west-1"
+    Description: "AWS region for the resources"
+
+Resources:
+
+# ECR Repository
+  TodoListECR:
+    Type: "AWS::ECR::Repository"
+    Properties:
+      RepositoryName: !Ref RepositoryName
+      EmptyOnDelete: true
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+              {
+                "rulePriority": 1,
+                "description": "Expire untagged images older than 30 days",
+                "selection": {
+                  "tagStatus": "untagged",
+                  "countType": "sinceImagePushed",
+                  "countUnit": "days",
+                  "countNumber": 30
+                },
+                "action": {
+                  "type": "expire"
+                }
+              }
+            ]
+          }
+      Tags:
+        - Key: Name
+          Value: !Ref RepositoryName
+
+
+Outputs:
+  ECRRepositoryURI:
+    Description: "URI of the ECR Repository"
+    Value: !GetAtt TodoListECR.RepositoryUri
+    Export:
+      Name: "TodoListECRRepositoryURI"

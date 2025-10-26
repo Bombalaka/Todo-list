@@ -1,0 +1,173 @@
+body{
+    background-color: hsl(0, 0%, 10%);
+}
+.to-do-list{
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin-top: 100px;
+}
+h1{
+    font-size: 4rem;
+    color: white;
+}
+button{
+    font-size: 1.7rem;
+    font-weight: bold;
+    padding: 10px 20px;
+    color: white;
+    background-color: hsl(0, 0%, 20%);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.5s ease;
+    
+}
+.add-task-button{
+    background-color: hsl(125, 47%, 54%);
+    margin: 1rem;
+}
+.add-task-button:hover{
+    background-color: hsl(125, 47%, 44%);
+    
+}
+.delete-button{
+    background-color: hsl(10, 90%, 50%);
+    margin: 1rem;
+}
+.delete-button:hover{
+    background-color: hsl(10, 90%, 40%);
+}
+.move-button{
+    background-color: hsl(207, 90%, 64%);
+    margin: 0.01rem;
+}
+.move-button:hover{
+    background-color: hsl(207, 90%, 54%);
+}
+input[type="text"]{
+    font-size: 1.6rem;
+    padding: 10px;
+    border: 2px solid hsla(0, 0%, 80%, 0.5);
+    border-radius: 5px;
+    color: hsla(0, 0%, 0%, 0.5);
+}
+input[type="checkbox"]{
+    width: 20px;
+    height: 20px;
+    margin-left: 15px;
+    cursor: pointer;
+    color: hsla(0, 0%, 0%, 0.5);
+}
+ol{
+    padding: 0;
+    width: 60%;
+    margin: 0 auto;
+}
+li{
+    font-size: 2rem;
+    font-weight: bold;
+    padding: 15px;
+    background-color: hsl(0, 0%, 97%);
+    margin-bottom: 10px;
+    border: 3px solid hsla(0, 0%, 85%, 0.75);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    
+}
+.text{
+    flex: 1;
+}
+.text.completed { text-decoration: line-through; opacity: 0.6; }
+.delete-button, .move-button{
+    padding: 8px 12px;
+    font-size: 1.4rem;
+    margin-left: 10px;
+}
+
+/* Edit UI styles */
+.edit-input {
+    font-size: 1.6rem;
+    padding: 8px;
+    border-radius: 4px;
+    border: 2px solid hsla(0, 0%, 80%, 0.5);
+    margin-right: 8px;
+    flex: 1 1 auto;
+}
+.save-button {
+    background-color: hsl(200, 70%, 45%);
+    margin-left: 6px;
+}
+.cancel-button {
+    background-color: hsl(0, 0%, 40%);
+    margin-left: 6px;
+}
+.footer{
+    padding: 12px;
+    text-align: center;
+    color: white;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+/* Base (mobile) */
+.app {
+  padding: 16px;
+  font-size: 16px;
+  display: block;
+}
+
+/* Tablet and up */
+@media (min-width: 600px) {
+  .app {
+    padding: 24px;
+    font-size: 18px;
+  }
+  .todo-list {
+    display: grid;
+    grid-template-columns: 1fr 320px; /* main + sidebar */
+    gap: 20px;
+  }
+}
+
+/* Desktop and up */
+@media (min-width: 900px) {
+  .app {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .todo-item {
+    font-size: 18px;
+  }
+}
+
+/* Very small mobile screens (e.g. narrow phones ~344px) */
+@media (max-width: 360px) {
+    /* reduce large headings and spacing */
+    h1 { font-size: 2.2rem; margin: 0.5rem 0; }
+    .to-do-list { margin-top: 40px; padding: 8px; }
+
+    /* make buttons and inputs more compact */
+    button { font-size: 1.1rem; padding: 6px 10px; }
+    .add-task-button, .delete-button, .move-button { margin: 0.25rem; }
+
+    input[type="text"]{ font-size: 1.1rem; padding: 8px; width: 100%; box-sizing: border-box; }
+
+    /* list items — smaller, allow wrapping of content */
+    li {
+        font-size: 1.4rem;
+        padding: 10px;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: flex-start;
+    }
+
+    /* ensure the text area can shrink and wrap */
+    .text { flex: 1 1 auto; min-width: 0; overflow-wrap: break-word; }
+
+    /* compact small control buttons */
+    .delete-button, .move-button{ padding: 6px 8px; font-size: 1rem; margin-left: 6px; }
+
+    /* avoid horizontal overflow from borders/margins */
+    .app, .to-do-list, ol { padding-left: 0; padding-right: 0; }
+}

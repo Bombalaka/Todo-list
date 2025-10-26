@@ -1,0 +1,38 @@
+# EKS environment with ECR private registry
+
+# Use ECR image
+image:
+  repository: 146624863550.dkr.ecr.eu-west-1.amazonaws.com/todo-list-repo
+  tag: v1.1.0
+
+# MongoDB storage - use EBS
+mongodb:
+  useBitnami: true
+  enabled: true
+  storage:
+    enabled: false # use AWS default storage instead of EBS
+    storageClass: ebs-sc
+
+# WebApp service - LoadBalancer with AWS annotations
+webapp:
+  service:
+    type: LoadBalancer
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+
+# Mongo Express service - LoadBalancer with AWS annotations
+mongoExpress:
+  service:
+    type: LoadBalancer
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+
+# Create EBS StorageClass
+storageClass:
+  enabled: true
+  name: ebs-sc
+  provisioner: ebs.csi.eks.amazonaws.com
+  volumeBindingMode: WaitForFirstConsumer
+  parameters:
+    type: gp3
+    encrypted: "true"

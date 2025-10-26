@@ -1,0 +1,31 @@
+# Docker Desktop environment configuration
+
+# Use local Docker image
+image:
+  repository: yotaka99/todo-app
+  tag: "1.1"
+  pullPolicy: Never  # Use local image, don't pull from registry
+
+# MongoDB storage - use hostpath
+mongodb:
+  useBitnami: false
+  enabled: true
+  storage:
+    enabled: false # use docker desktop default storage
+    storageClass: hostpath
+
+# WebApp service - NodePort for local access
+webapp:
+  service:
+    type: NodePort
+    nodePort: 30085
+
+# Mongo Express service - NodePort for local access
+mongoExpress:
+  service:
+    type: NodePort
+    nodePort: 30086
+
+# Don't create StorageClass (use built-in hostpath)
+storageClass:
+  enabled: false

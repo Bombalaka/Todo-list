@@ -1,0 +1,63 @@
+{{- if and .Values.mongodb.enabled (not .Values.mongodb.useBitnami) }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-service
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "todo-app.labels" . | nindent 4 }}
+    app: mongodb
+spec:
+  selector:
+    app: mongodb
+  ports:
+  - port: 27017
+    targetPort: 27017
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "todo-app.labels" . | nindent 4 }}
+    app: mongodb
+spec:
+  serviceName: mongodb-service
+  replicas: {{ .Values.mongodb.replicas }}
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: {{ .Values.mongodb.image }}
+        ports:
+        - containerPort: 27017
+        {{- if .Values.mongodb.storage.enabled }}
+        volumeMounts:
+        - name: mongodb-data
+          mountPath: /data/db
+        {{- end }}
+        resources:
+          {{- toYaml .Values.mongodb.resources | nindent 10 }}
+  {{- if .Values.mongodb.storage.enabled }}
+  volumeClaimTemplates:
+  - metadata:
+      name: mongodb-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      {{- if .Values.mongodb.storage.storageClass }}
+      storageClassName: {{ .Values.mongodb.storage.storageClass }}
+      {{- end }}
+      resources:
+        requests:
+          storage: {{ .Values.mongodb.storage.size }}
+  {{- end }}
+{{- end }}

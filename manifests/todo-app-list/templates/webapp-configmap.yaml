@@ -1,0 +1,13 @@
+{{- if .Values.webapp.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: webapp-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "todo-app.labels" . | nindent 4 }}
+data:
+  MONGODB_HOST: "mongodb-service"
+  MONGODB_PORT: "27017"
+  MONGODB_DATABASE: {{ .Values.mongodb.database | quote }}
+{{- end }}

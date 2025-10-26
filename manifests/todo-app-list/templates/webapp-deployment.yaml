@@ -1,0 +1,55 @@
+{{- if .Values.webapp.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: todo-webapp-service
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "todo-app.labels" . | nindent 4 }}
+    app: todo-webapp
+  {{- with .Values.webapp.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.webapp.service.type }}
+  selector:
+    app: todo-webapp
+  ports:
+  - port: {{ .Values.webapp.service.port }}
+    targetPort: {{ .Values.webapp.port }}
+    {{- if and (eq .Values.webapp.service.type "NodePort") .Values.webapp.service.nodePort }}
+    nodePort: {{ .Values.webapp.service.nodePort }}
+    {{- end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-webapp
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "todo-app.labels" . | nindent 4 }}
+    app: todo-webapp
+spec:
+  replicas: {{ .Values.webapp.replicas }}
+  selector:
+    matchLabels:
+      app: todo-webapp
+  template:
+    metadata:
+      labels:
+        app: todo-webapp
+    spec:
+      containers:
+      - name: webapp
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.webapp.port }}
+        envFrom:
+        - configMapRef:
+            name: webapp-config
+        resources:
+          {{- toYaml .Values.webapp.resources | nindent 10 }}
+{{- end }}
