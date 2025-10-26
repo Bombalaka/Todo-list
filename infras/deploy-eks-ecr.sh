@@ -20,20 +20,23 @@ else
     echo "✅ EBS CSI Driver already installed"
 fi
 
-# 3. Add Bitnami Helm repo
-echo "📚 Adding Bitnami Helm repository..."
-helm repo add bitnami https://charts.bitnami.com/bitnami 2>/dev/null || true
-helm repo update
+  
+# 3. Ensure namespace exists
 
-# 4. Download MongoDB dependency
-echo "⬇️  Downloading MongoDB dependency..."
-pushd "$CHART_PATH" > /dev/null
-helm dependency update
-popd > /dev/null
+if ! kubectl get namespace "$NAMESPACE" &> /dev/null; then
+  echo "🆕 Creating namespace $NAMESPACE with Helm labels/annotations..."
+  kubectl create namespace "$NAMESPACE"
+  kubectl label namespace "$NAMESPACE" app.kubernetes.io/managed-by=Helm --overwrite
+  kubectl annotate namespace "$NAMESPACE" meta.helm.sh/release-name=todo-app-list --overwrite
+  kubectl annotate namespace "$NAMESPACE" meta.helm.sh/release-namespace=todo-app-list --overwrite
+fi
 
-# 5. Deploy application
+# 4. Deploy application
 echo "🚀 Deploying application to EKS..."
-helm install todo-app-list "$CHART_PATH" -f "$CHART_PATH/$VALUES_FILE"
+helm upgrade --install todo-app-list "$CHART_PATH" \
+  -f "$CHART_PATH/$VALUES_FILE" \
+  --namespace "$NAMESPACE" \
+ 
 
 echo ""
 echo "⏳ Waiting for pods to be ready (this may take a few minutes)..."

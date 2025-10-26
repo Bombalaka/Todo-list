@@ -68,7 +68,7 @@ Resources:
       AvailabilityZone: !Select [ 0, !GetAZs '' ]
       MapPublicIpOnLaunch: true # Enable auto-assign public IP == yes 
       Tags:
-        - Key: kubernetes.io/cluster/my-cluster
+        - Key: kubernetes.io/cluster/todolist
           Value: "shared"
         - Key: kubernetes.io/role/elb
           Value: "1"
@@ -81,7 +81,7 @@ Resources:
       AvailabilityZone: !Select [ 1, !GetAZs '' ]
       MapPublicIpOnLaunch: true # Enable auto-assign public IP == yes 
       Tags:
-        - Key: kubernetes.io/cluster/my-cluster
+        - Key: kubernetes.io/cluster/todolist
           Value: "shared"
         - Key: kubernetes.io/role/elb
           Value: "1"
@@ -94,7 +94,7 @@ Resources:
       AvailabilityZone: !Sub "${AwsRegion}a"
       MapPublicIpOnLaunch: false
       Tags:
-        - Key: kubernetes.io/cluster/my-cluster
+        - Key: kubernetes.io/cluster/todolist
           Value: "shared"   
   
   privateSubnet2:
@@ -105,7 +105,7 @@ Resources:
       AvailabilityZone: !Sub "${AwsRegion}b"
       MapPublicIpOnLaunch: false
       Tags:
-        - Key: kubernetes.io/cluster/my-cluster
+        - Key: kubernetes.io/cluster/todolist
           Value: "shared"
   
   NatGatewayEIP1:

@@ -37,7 +37,7 @@ spec:
     spec:
       containers:
       - name: mongodb
-        image: {{ .Values.mongodb.image }}
+        image: {{ .Values.mongodb.customImage }}
         ports:
         - containerPort: 27017
         {{- if .Values.mongodb.storage.enabled }}

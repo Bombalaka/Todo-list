@@ -7,5 +7,5 @@ provisioner: {{ .Values.storageClass.provisioner }}
 volumeBindingMode: {{ .Values.storageClass.volumeBindingMode }}
 parameters:
   type: {{ .Values.storageClass.parameters.type }}
-  encrypted: {{ .Values.storageClass.parameters.encrypted }}
+  encrypted: {{ .Values.storageClass.parameters.encrypted | quote }}
 {{- end }}
