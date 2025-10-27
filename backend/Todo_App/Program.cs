@@ -17,6 +17,7 @@ builder.Services.AddCors(o =>
 builder.Services.ConfigureHttpJsonOptions(o =>
 {
     o.SerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    o.SerializerOptions.PropertyNameCaseInsensitive = true;
 });
 
 // ---- Mongo connection (safe against double port) ----

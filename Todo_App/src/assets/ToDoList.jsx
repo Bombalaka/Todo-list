@@ -40,7 +40,7 @@ async function addTask() {
     if (newTask.trim() !== "") {
         try {
                 const response = await axios.post(`${API_URL}/api/tasks`, {
-                    Name: newTask.trim()
+                    name: newTask.trim()
                 });
                 
                 const taskObj = {
@@ -82,7 +82,7 @@ async function saveEdit(id) {
     if (trimmed === "") return; // ignore empty updates
     try {
         const task = tasks.find(t => t.id === id);
-        await axios.put(`${API_URL}/api/tasks/${id}`, { Name: trimmed, IsComplete: task.completed });
+        await axios.put(`${API_URL}/api/tasks/${id}`, { name: trimmed, isComplete: task.completed });
         setTasks(prev => prev.map(t => t.id === id ? { ...t, text: trimmed } : t));
     } catch (error) {
         console.error("Error saving task:", error);
@@ -97,8 +97,8 @@ async function TaskCompletion(id) {
         
         // Update backend
         await axios.put(`${API_URL}/api/tasks/${id}`, {
-            Name: task.text,
-            IsComplete: !task.completed  // Toggle completion
+            name: task.text,
+            isComplete: !task.completed  // Toggle completion
         });
         
         // Update local state
