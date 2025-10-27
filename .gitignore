@@ -23,3 +23,6 @@ argocd-credentials.txt
 *.njsproj
 *.sln
 *.sw?
+
+fix1.sh
+fix.sh

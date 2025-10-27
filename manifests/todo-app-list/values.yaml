@@ -15,7 +15,7 @@ image:
 mongodb:
   enabled: true
   replicas: 1
-  customImage: mongo:latest  # Renamed to avoid conflict with Bitnami
+  image: mongo:latest  
   storage:
     enabled: true
     size: 1Gi

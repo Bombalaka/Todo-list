@@ -8,10 +8,8 @@ image:
 
 # MongoDB - use custom template
 mongodb:
-  useBitnami: false  # Use our own mongodb-statefulset.yaml
-  storage:
-    enabled: true # Enable persistent storage
-    storageClass: ebs-sc
+  storage: 
+    storageClass: ebs-sc  # Use EBS StorageClass
     
 # WebApp service - LoadBalancer with AWS annotations
 webapp:
@@ -31,8 +29,8 @@ mongoExpress:
 storageClass:
   enabled: true
   name: ebs-sc
-  provisioner: ebs.csi.eks.amazonaws.com
-  volumeBindingMode: Immediate
+  provisioner: ebs.csi.aws.com
+  volumeBindingMode: WaitForFirstConsumer
   parameters:
     type: gp3
     encrypted: "true"

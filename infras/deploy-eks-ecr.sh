@@ -10,16 +10,6 @@ echo "☸️  Setting up Kubernetes for EKS..."
 # 1. Switch to EKS context
 echo "🔄 Updating kubectl config for EKS..."
 aws eks update-kubeconfig --region eu-west-1 --name todolist
-
-# 2. Install EBS CSI Driver (one-time)
-if ! kubectl get deployment ebs-csi-controller -n kube-system &> /dev/null; then
-    echo "📦 Installing EBS CSI Driver..."
-    kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/?ref=master"
-    echo "✅ EBS CSI Driver installed"
-else
-    echo "✅ EBS CSI Driver already installed"
-fi
-
   
 # 3. Ensure namespace exists
 
