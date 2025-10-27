@@ -33,7 +33,7 @@ mongodb:
 # WebApp configuration
 webapp:
   enabled: true
-  replicas: 3
+  replicas: 2
   port: 8080
   resources:
     requests:
