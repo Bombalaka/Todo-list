@@ -1,0 +1,12 @@
+# ingress-nginx-values.yaml
+controller:
+ 
+  kind: DaemonSet
+
+  # Configuration for the controller's service
+  service:
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+      service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+    # Set externalTrafficPolicy to Local to preserve the source IP of the client
+    externalTrafficPolicy: Local
