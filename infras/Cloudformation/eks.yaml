@@ -68,6 +68,7 @@ Resources:
         - "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"     # Pull from ECR
         - "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"                   # CNI plugin  
 
+
 #eks control plane
   EKSCluster:
     Type: "AWS::EKS::Cluster"
