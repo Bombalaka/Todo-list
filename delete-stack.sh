@@ -20,8 +20,8 @@ else
 fi
 
 # Step 2: Wait a bit for EKS cleanup
-echo "Waiting 2 minutes for EKS resources to fully clean up..."
-sleep 120
+echo "Waiting 5 minutes for EKS resources to fully clean up..."
+sleep 300
 
 # Step 3: Delete VPC
 echo "Deleting VPC and NAT Gateways..."
