@@ -8,7 +8,6 @@ image:
 
 # MongoDB storage - use hostpath
 mongodb:
-  useBitnami: false
   enabled: true
   storage:
     enabled: false # use docker desktop default storage
