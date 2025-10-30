@@ -4,15 +4,13 @@ set -Eeuo pipefail
 # Build and push docker image to docker hub
 
 
-# ------- CONFIG -------
-: "${DOCKER_USERNAME:?Set DOCKER_USERNAME}"
-: "${DOCKER_PASSWORD:?Set DOCKER_PASSWORD}"
+
 
 # change version if you want: ./publish.sh 1.1
 #VERSION="${1:-1.0}"
 VERSION="${1:-2.0}"
 
-IMAGE_REPO="${DOCKER_USERNAME}/todo-app"
+IMAGE_REPO="yotaka99/todo-app"
 
 # Path to backend Dockerfile (it also builds frontend)
 DOCKERFILE_PATH="backend/Todo_App/Dockerfile"
@@ -20,8 +18,16 @@ BUILD_CONTEXT="."
 
 # ----------------------
 
-echo "Logging in to Docker Hub..."
-echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+# Login to Docker Hub interactively
+echo "🔐 Logging in to Docker Hub..."
+docker login
+
+if [ $? -ne 0 ]; then
+    echo "❌ Docker login failed!"
+    exit 1
+fi
+
+echo ""
 
 echo "🏗️  Building fullstack image (frontend + backend)..."
 docker build \
