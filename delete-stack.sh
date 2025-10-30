@@ -19,6 +19,22 @@ else
     echo "⚠️ EKS stack not found, skipping..."
 fi
 
+# delete EBS CSI IAM Role
+echo ""
+echo "🗑️  Deleting EBS CSI IAM Role..."
+if aws iam get-role --role-name $IAM_ROLE_NAME &> /dev/null; then
+    echo "   Detaching policies..."
+    aws iam list-attached-role-policies --role-name $IAM_ROLE_NAME \
+      --query 'AttachedPolicies[*].PolicyArn' --output text | \
+    xargs -I {} aws iam detach-role-policy --role-name $IAM_ROLE_NAME --policy-arn {} 2>/dev/null
+    
+    echo "   Deleting role..."
+    aws iam delete-role --role-name $IAM_ROLE_NAME 2>/dev/null
+    echo "   ✅ IAM role deleted"
+else
+    echo "   ℹ️  IAM role not found"
+fi
+
 # Step 2: Wait a bit for EKS cleanup
 echo "Waiting 5 minutes for EKS resources to fully clean up..."
 sleep 300

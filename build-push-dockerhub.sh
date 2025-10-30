@@ -9,7 +9,8 @@ set -Eeuo pipefail
 : "${DOCKER_PASSWORD:?Set DOCKER_PASSWORD}"
 
 # change version if you want: ./publish.sh 1.1
-VERSION="${1:-1.0}"
+#VERSION="${1:-1.0}"
+VERSION="${1:-2.0}"
 
 IMAGE_REPO="${DOCKER_USERNAME}/todo-app"
 
