@@ -7,8 +7,8 @@ namespace: todo-app-list
 
 # Container image configuration for our app
 image:
-  repository: 146624863550.dkr.ecr.eu-west-1.amazonaws.com/todo-list-repo
-  tag: v1.2.1
+  repository: 146624863550.dkr.ecr.eu-west-1.amazonaws.com/todo-list-repo # change to your ECR repo
+  tag: v1.2.1 # you need to change this per your image version my is v1.2.1 but yours may be different
   pullPolicy: Always
 
 # MongoDB configuration
