@@ -15,7 +15,7 @@ image:
 mongodb:
   enabled: true
   replicas: 1
-  image: mongo:latest  
+  image: mongo:latest
   storage:
     enabled: true
     size: 1Gi
